@@ -6,6 +6,8 @@ class Student(models.Model):
     email = models.EmailField()
     age = models.IntegerField()
     gender = models.CharField(max_length=100, blank=False, null=False)
+    country = models.CharField(max_length=100, default='kenya')
+    city = models.CharField(max_length=100, default='nairobi')
 
 
 def __str__(self):
