@@ -1,7 +1,21 @@
+from __future__ import unicode_literals
+from django_daraja.mpesa import utils
+from django.http import HttpResponse, JsonResponse
+from django.views.generic import View
+from django_daraja.mpesa.core import MpesaClient
+from decouple import config
+from datetime import datetime
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib import messages
 from .models import Student
+
+cl = MpesaClient()
+stk_push_callback_url = 'https://api.darajambili.com/express-payment'
+b2c_callback_url = 'https://api.darajambili.com/b2c/result'
+
+
+def oauth_success(request):
+    r = cl.access_token()
+    return JsonResponse(r, safe=False)
 
 
 def index_page(request):
@@ -31,6 +45,7 @@ def insertData(request):
         country = request.POST.get('country')
         city = request.POST.get('city')
         amount = request.POST.get('amount')
+        phone_number = request.POST.get('phone_number')
 
         query = Student(name=name, email=email, age=age, gender=gender, country=country, city=city, amount=amount)
         query.save()
@@ -56,6 +71,7 @@ def updateData(request, id):
         country = request.POST.get('country')
         city = request.POST.get('city')
         amount = request.POST.get('amount')
+        phone_number = request.POST.get('phone_number')
 
         update_info = Student.objects.get(id=id)
         update_info.name = name
@@ -65,6 +81,7 @@ def updateData(request, id):
         update_info.country = country
         update_info.city = city
         update_info.amount = amount
+        update_info.phone_number = phone_number
         update_info.save()
 
         return redirect("/")
@@ -72,3 +89,17 @@ def updateData(request, id):
     d = Student.objects.get(id=id)
     context = {"d": d}
     return render(request, "edit.html", context)
+
+
+def pay(request, id):
+    if request.method == "POST":
+        phone_number = request.POST.get('phone')
+        amount = request.POST.get('amount')
+        amount = int(amount)
+        account_reference = 'FATHI'
+        transaction_desc = 'STK Push Description'
+        callback_url = stk_push_callback_url
+        r = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+        return JsonResponse(r.response_description, safe=False)
+
+    return render(request, 'index.html')
