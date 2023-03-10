@@ -30,8 +30,9 @@ def insertData(request):
         gender = request.POST.get('gender')
         country = request.POST.get('country')
         city = request.POST.get('city')
+        amount = request.POST.get('amount')
 
-        query = Student(name=name, email=email, age=age, gender=gender, country=country, city=city)
+        query = Student(name=name, email=email, age=age, gender=gender, country=country, city=city, amount=amount)
         query.save()
         return redirect("/")
 
@@ -54,6 +55,7 @@ def updateData(request, id):
         gender = request.POST.get('gender')
         country = request.POST.get('country')
         city = request.POST.get('city')
+        amount = request.POST.get('amount')
 
         update_info = Student.objects.get(id=id)
         update_info.name = name
@@ -62,6 +64,7 @@ def updateData(request, id):
         update_info.gender = gender
         update_info.country = country
         update_info.city = city
+        update_info.amount = amount
         update_info.save()
 
         return redirect("/")
